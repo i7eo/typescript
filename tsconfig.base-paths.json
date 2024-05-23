@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@i7eo/typescript-*": ["./packages/*/src"]
+    }
+  }
+}

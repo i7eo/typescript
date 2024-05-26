@@ -1,0 +1,55 @@
+{
+  "name": "@i7eo/typescript-prototype",
+  "version": "0.0.0",
+  "homepage": "https://github.com/i7eo/typescript/blob/master/packages/prototype#readme",
+  "bugs": {
+    "url": "https://github.com/i7eo/typescript/issues"
+  },
+  "license": "MIT",
+  "author": "i7eo <admin@i7eo.com> (https://github.com/i7eo)",
+  "files": [
+    "*.d.ts",
+    "dist"
+  ],
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "publishConfig": {
+    "main": "./dist/index.cjs",
+    "module": "./dist/index.js",
+    "types": "./dist/index.d.ts",
+    "exports": {
+      ".": {
+        "require": "./dist/index.cjs",
+        "import": "./dist/index.js"
+      },
+      "./*": [
+        "./*",
+        "./*.d.ts"
+      ]
+    },
+    "typesVersions": {
+      "*": {
+        "*": [
+          "./dist/*",
+          "./*"
+        ]
+      }
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/i7eo/typescript.git",
+    "directory": "packages/prototype"
+  },
+  "scripts": {
+    "build": "tsup --config ./build.config.ts",
+    "dev": "DEV=true pnpm build",
+    "clean": "run-p clean:**",
+    "clean:cache": "rimraf .turbo && rimraf dist",
+    "clean:deps": "rimraf node_modules"
+  },
+  "engines": {
+    "node": ">=20",
+    "pnpm": ">=9"
+  }
+}

@@ -87,3 +87,34 @@ const data1: UserKeys = 'age'
 // const user = { name: '1', age: 2 }
 // let userNameSign = 'name'
 // const userName = user[userNameSign]
+
+// const numberRecords = [10, 20, 30] as const
+// numberRecords[0] = 1
+
+// // const user1: [ string, number, string, string, string ] = [ '1', 20, 'shannxi xian', '13699999999', 'is user1' ]
+// const [ username, age, address, ...rest ]: [ username: string, age: number, address: string, ...rest: any[] ] = [ '2', 20, 'shannxi xian', '13699999999', 'is user2' ]
+// console.log(username, age, address, rest)
+
+class DateUtil {
+	static dateUtil: DateUtil
+	static getInstance() {
+		if(!this.dateUtil) {
+			this.dateUtil = new DateUtil()
+		}
+		return this.dateUtil
+	}
+	
+	private constructor(){} // 防止外部实例化，确保单例
+	
+	formatDate() {}
+	diffDateByHour() {}
+  diffDateByDay() {}
+}
+
+console.log(DateUtil.getInstance().formatDate)
+
+const dateUtil1 = DateUtil.getInstance()
+const dateUtil2 = DateUtil.getInstance()
+console.log(dateUtil1 === dateUtil2) // true, 确定是单例
+
+export default DateUtil.getInstance()

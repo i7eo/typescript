@@ -42,4 +42,37 @@ class BasketBall extends Ball {
 	constructor(public name: string) {
 		super(name)
 	}
+
+	play() {
+		super.play()
+
+		// TODO:
+	}
+}
+
+const aa = 123
+const bb = <any>aa
+
+class User {}
+
+class UserA extends User {
+	actionA() {
+		console.log("actionA")
+	}
+}
+
+class UserB extends User {
+	constructor() {
+		super()
+	}
+
+	action(user: UserA | UserB) {
+		if(isUserA(user)) {
+			user.actionA
+		}
+	}
+}
+
+function isUserA(user: UserA | UserB): user is UserA {
+	return user instanceof UserA
 }

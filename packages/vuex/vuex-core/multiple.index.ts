@@ -56,15 +56,15 @@ class Store<S = any> {
   public modulesController!: ModulesController<S>;
   public mutations!: Mutations<S>;
   public actions!: Actions<any, S>;
-  public commit!: Commit
-  public dispatch!: Dispatch
+  public commit!: Commit;
+  public dispatch!: Dispatch;
 
   constructor(public options: StoreOptions<S>) {
     this.mutations = options.mutations || Object.create(null);
     this.actions = options.actions || Object.create(null);
+    this.modulesController = new ModulesController<S>(this.options, this);
 
-    this.mountedModules()
-    this.bindProps()
+    this.bindProps();
   }
 
   install(app: App) {
@@ -77,37 +77,30 @@ class Store<S = any> {
   }
 
   /**
-   * 挂载模块，包括根模块、其他模块（父模块、子模块），将所有模块实例收敛至根模块的 modulesController 属性中
-   */
-  mountedModules() {
-    this.modulesController = new ModulesController<S>(this.options, this);
-  }
-
-  /**
    * 通过属性执行方法
    */
   bindProps() {
-    const storeInstance = this
-    const commit = storeInstance._commit
-    const dispatch = storeInstance._dispatch
+    const storeInstance = this;
+    const commit = storeInstance._commit;
+    const dispatch = storeInstance._dispatch;
 
     function bindCommit(type: string, payload?: any) {
-      commit.call(storeInstance, type, payload)
+      commit.call(storeInstance, type, payload);
     }
-    this.commit = bindCommit
+    this.commit = bindCommit;
 
     function bindDispatch(type: string, payload?: any) {
-      dispatch.call(storeInstance, type, payload)
+      dispatch.call(storeInstance, type, payload);
     }
-    this.dispatch = bindDispatch
+    this.dispatch = bindDispatch;
   }
 
   _commit(type: string, payload?: any) {
-    this.mutations[type]?.(payload)
+    this.mutations[type]?.(payload);
   }
 
   _dispatch(type: string, payload?: any) {
-    this.actions[type]?.(payload)
+    this.actions[type]?.(payload);
   }
 }
 
@@ -147,18 +140,18 @@ class ModulesController<R> {
   public rootRaw!: ModuleController<any, R>;
 
   constructor(rootRawModule: Module<any, R>, store: Store<R>) {
-    this.mountedModule([], rootRawModule);
-    console.log('开始挂载 state')
-    this.mountedModulesState([], store, this.rootRaw.state, this.rootRaw)
+    this.mountedModules([], rootRawModule);
+    this.mountedModulesState([], store, this.rootRaw.state, this.rootRaw);
+    console.log('root state: ', this.rootRaw.state)
   }
 
   /**
    * 将各个模块按照父子关系挂载至对应的 children 中，最终收敛至 ModulesController 中
-   * @param paths 
-   * @param rawModule 
-   * @param parentRawModule 
+   * @param paths
+   * @param rawModule
+   * @param parentRawModule
    */
-  mountedModule(
+  mountedModules(
     paths: string[],
     rawModule: Module<any, R>,
     parentRawModule?: ModuleController<any, R>
@@ -171,36 +164,56 @@ class ModulesController<R> {
     } else {
       // 挂载子模块至父模块的 children 中
       const moduleNamespaceKey = paths.at(-1); // paths 最后一位即当前模块的名称
-      if (moduleNamespaceKey)
+      if (moduleNamespaceKey) {
         parentRawModule?.addChildrenModule(moduleNamespaceKey, _module);
+      }
     }
 
     if (rawModule.modules) {
-      for (const [namespaceKey, value] of Object.entries(rawModule.modules)) {
-        this.mountedModule(paths.concat(namespaceKey), value, _module);
+      for (const [namespaceKey, moduleValue] of Object.entries(
+        rawModule.modules
+      )) {
+        this.mountedModules(paths.concat(namespaceKey), moduleValue, _module);
       }
     }
   }
 
   /**
    * 将各个模块按照父子关系将 state 全部收敛至根模块下
-   * @param paths 
-   * @param store 
-   * @param rootState 
-   * @param rawModule 
+   * @param paths
+   * @param store
+   * @param rootState
+   * @param rawModule
    */
   mountedModulesState(
     paths: string[],
     store: Store<R>,
     rootState: R,
-    rawModule: ModuleController<any, R>
+    rawModule: ModuleController<any, R>,
+    parentRawModule?: ModuleController<any, R>
   ) {
-    console.log('结束挂载 state')
+    console.log("paths: ", paths);
 
-    if (paths.length === 0) {
-      // 根模块
-    }else{
+    if (paths.length !== 0) {
+      // 挂载子模块 state 至父模块的 state 中
+      const moduleNamespaceKey = paths.at(-1); // paths 最后一位即当前模块的名称
+      if (moduleNamespaceKey && parentRawModule) {
+        parentRawModule.state[`${moduleNamespaceKey}`] = rawModule.state;
+      }
+    }
 
+    if (Object.keys(rawModule.children).length > 0) {
+      for (const [namespaceKey, moduleValue] of Object.entries(
+        rawModule.children
+      )) {
+        this.mountedModulesState(
+          paths.concat(namespaceKey),
+          store,
+          rootState,
+          moduleValue,
+          rawModule
+        );
+      }
     }
   }
 }

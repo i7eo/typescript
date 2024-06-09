@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed, onMounted } from "vue";
 // import { useStore } from "../../vuex-core";
 import { useStore } from "../../vuex-core/multiple.index.ts";
 
@@ -7,12 +7,27 @@ defineProps<{ msg: string }>();
 const count = ref(0);
 
 const store = useStore()
-console.log(store)
+// console.log(store)
+
+const navList = computed(() => {
+  console.log('computed')
+  return store.getters['testmodule11/getNavList']
+})
+
+// // store.mutations['testmodule11/updateNavList'](["testmodule11 state", "damn!!!"]) // mutations
+// store.commit('testmodule11/updateNavList', ["testmodule11 state", "damn!!!"]) // mutations
+
+onMounted(() => {
+  console.log('onMounted')
+  // store.actions['testmodule11/updateNavList']({}) // actions
+  store.dispatch('testmodule11/updateNavList', {}) // actions
+})
 </script>
 
 <template>
   <h1>{{ msg }}</h1>
   <!-- <h2>{{ store.test() }}</h2> -->
+  <h2>{{ navList }}</h2>
 
   <div class="card">
     <button type="button" @click="count++">count is {{ count }}</button>
